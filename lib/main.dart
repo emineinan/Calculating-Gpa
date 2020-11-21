@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
               child: Container(
                   padding: EdgeInsets.all(10),
-                  color: Colors.pink,
+                  color: Colors.white,
                   child: Form(
                       child: Column(
                     children: <Widget>[
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   )))),
           Expanded(
               child: Container(
-            color: Colors.green,
+            color: Colors.white,
             child: Text("LIST"),
           )),
         ],
