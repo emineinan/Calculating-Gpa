@@ -9,9 +9,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
       home: MyHomePage(),
     );
@@ -27,14 +28,29 @@ class _MyHomePageState extends State<MyHomePage> {
   String lectureName;
   int lectureCredit = 1;
   double lectureLetterValue = 4;
+  List<Lecture> allLectures;
+  var formKey = GlobalKey<FormState>();
+  double gpa;
+
+  @override
+  void initState() {
+    super.initState();
+    allLectures = [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text("CALCULATING GPA"),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          if (formKey.currentState.validate()) {
+            formKey.currentState.save();
+          }
+        },
         child: Icon(Icons.add),
       ),
       body: buildBody(),
@@ -42,75 +58,100 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   buildBody() {
-    return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-              child: Container(
-                  padding: EdgeInsets.all(10),
-                  color: Colors.white,
-                  child: Form(
-                      child: Column(
-                    children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: "Lecture Name",
-                            hintText: "Please enter a lecture name",
-                            border: OutlineInputBorder()),
-                        validator: (value) {
-                          if (value.length > 0) {
-                            return null;
-                          } else
-                            return "Please a validate lecture name";
-                        },
-                        onSaved: (newValue) {
-                          lectureName = newValue;
-                        },
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.all(5.0),
-                            margin: EdgeInsets.only(top: 5.0),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.red, width: 2)),
-                            child: DropdownButton(
-                              items: lectureCredits(),
-                              value: lectureCredit,
-                              onChanged: (selectedCredit) {
-                                setState(() {
-                                  lectureCredit = selectedCredit;
-                                });
-                              },
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+                padding: EdgeInsets.all(10),
+                color: Colors.white,
+                child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: "Lecture Name",
+                              hintText: "Please enter a lecture name",
+                              border: OutlineInputBorder()),
+                          validator: (value) {
+                            if (value.length > 0) {
+                              return null;
+                            } else
+                              return "Please a validate lecture name";
+                          },
+                          onSaved: (newValue) {
+                            lectureName = newValue;
+                            setState(() {
+                              allLectures.add(Lecture(lectureName,
+                                  lectureLetterValue, lectureCredit));
+                            });
+                          },
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.all(5.0),
+                              margin: EdgeInsets.only(top: 5.0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.purple, width: 2)),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                  items: lectureCredits(),
+                                  value: lectureCredit,
+                                  onChanged: (selectedCredit) {
+                                    setState(() {
+                                      lectureCredit = selectedCredit;
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(5.0),
-                            margin: EdgeInsets.only(top: 5.0),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: Colors.red, width: 2)),
-                            child: DropdownButton<double>(
-                              items: lectureLetterValues(),
-                              value: lectureLetterValue,
-                              onChanged: (value) {
-                                lectureLetterValue = value;
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  )))),
-          Expanded(
-              child: Container(
-            color: Colors.white,
-            child: Text("LIST"),
-          )),
-        ],
+                            Container(
+                              padding: EdgeInsets.all(5.0),
+                              margin: EdgeInsets.only(top: 5.0),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.purple, width: 2)),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<double>(
+                                  items: lectureLetterValues(),
+                                  value: lectureLetterValue,
+                                  onChanged: (value) {
+                                    lectureLetterValue = value;
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ))),
+            SizedBox(height: 20),
+            Container(
+              color: Colors.white,
+              margin: EdgeInsets.symmetric(vertical: 10),
+              height: 70,
+              child: Center(
+                  child: Text(
+                "GPA : $gpa",
+                style: TextStyle(fontSize: 25.0),
+              )),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+                child: Container(
+                    color: Colors.black,
+                    child: ListView.builder(
+                      itemBuilder: _createListItems,
+                      itemCount: allLectures.length,
+                    ))),
+          ],
+        ),
       ),
     );
   }
@@ -181,4 +222,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return letters;
   }
+
+  Widget _createListItems(BuildContext context, int index) {
+    return Card(
+      child: ListTile(
+        title: Text(allLectures[index].name),
+      ),
+    );
+  }
+}
+
+class Lecture {
+  String name;
+  double letterValue;
+  int credit;
+
+  Lecture(this.name, this.letterValue, this.credit);
 }
