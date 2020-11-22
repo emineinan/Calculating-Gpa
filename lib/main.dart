@@ -31,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Lecture> allLectures;
   var formKey = GlobalKey<FormState>();
   double gpa;
+  static int counter = 0;
 
   @override
   void initState() {
@@ -87,6 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             setState(() {
                               allLectures.add(Lecture(lectureName,
                                   lectureLetterValue, lectureCredit));
+                              gpa = 0.0;
+                              calculateGpa();
                             });
                           },
                         ),
@@ -137,9 +140,19 @@ class _MyHomePageState extends State<MyHomePage> {
               margin: EdgeInsets.symmetric(vertical: 10),
               height: 70,
               child: Center(
-                  child: Text(
-                "GPA : $gpa",
-                style: TextStyle(fontSize: 25.0),
+                  child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(children: [
+                  TextSpan(
+                      text: "GPA : ",
+                      style: TextStyle(fontSize: 30, color: Colors.black)),
+                  TextSpan(
+                      text: "$gpa",
+                      style: TextStyle(
+                          fontSize: 30,
+                          color: Colors.purple,
+                          fontWeight: FontWeight.bold)),
+                ]),
               )),
             ),
             SizedBox(height: 20),
@@ -224,11 +237,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _createListItems(BuildContext context, int index) {
-    return Card(
-      child: ListTile(
-        title: Text(allLectures[index].name),
+    counter++;
+    return Dismissible(
+      key: Key(counter.toString()),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction) {
+        setState(() {
+          allLectures.removeAt(index);
+          calculateGpa();
+        });
+      },
+      child: Card(
+        child: ListTile(
+          title: Text(allLectures[index].name),
+          subtitle: Text(allLectures[index].credit.toString() +
+              allLectures[index].letterValue.toString()),
+        ),
       ),
     );
+  }
+
+  void calculateGpa() {
+    double totalGrade = 0;
+    double totalCredit = 0;
+
+    for (var item in allLectures) {
+      var credit = item.credit;
+      var letterValue = item.letterValue;
+
+      totalGrade = totalGrade + (letterValue * credit);
+      totalCredit += credit;
+    }
+    gpa = totalGrade / totalCredit;
   }
 }
 
