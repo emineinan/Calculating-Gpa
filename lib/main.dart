@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -42,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.pink[100],
       appBar: AppBar(
         title: Text("CALCULATING GPA"),
       ),
@@ -147,7 +149,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       text: "GPA : ",
                       style: TextStyle(fontSize: 30, color: Colors.black)),
                   TextSpan(
-                      text: "$gpa",
+                      text:
+                          allLectures.length == 0 ? "Enter a lecture" : "$gpa",
                       style: TextStyle(
                           fontSize: 30,
                           color: Colors.purple,
@@ -158,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 20),
             Expanded(
                 child: Container(
-                    color: Colors.black,
+                    color: Colors.pink[100],
                     child: ListView.builder(
                       itemBuilder: _createListItems,
                       itemCount: allLectures.length,
@@ -237,6 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _createListItems(BuildContext context, int index) {
+    Color randomColor = createRandomColor();
     counter++;
     return Dismissible(
       key: Key(counter.toString()),
@@ -249,9 +253,17 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       child: Card(
         child: ListTile(
+          leading: Icon(
+            Icons.book,
+            size: 36,
+            color: createRandomColor(),
+          ),
           title: Text(allLectures[index].name),
-          subtitle: Text(allLectures[index].credit.toString() +
-              allLectures[index].letterValue.toString()),
+          trailing: Icon(
+            Icons.keyboard_arrow_right,
+            color: Colors.black,
+          ),
+          subtitle: Text(allLectures[index].credit.toString() + " credits"),
         ),
       ),
     );
@@ -269,6 +281,11 @@ class _MyHomePageState extends State<MyHomePage> {
       totalCredit += credit;
     }
     gpa = totalGrade / totalCredit;
+  }
+
+  Color createRandomColor() {
+    return Color.fromARGB(150 + Random().nextInt(105), Random().nextInt(255),
+        Random().nextInt(255), Random().nextInt(255));
   }
 }
 
